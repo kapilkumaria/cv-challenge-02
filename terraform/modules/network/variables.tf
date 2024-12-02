@@ -1,0 +1,13 @@
+variable "vpc-cidr" {}
+variable "pub-sub-cidr-block" {}
+variable "pri-sub-cidr-block" {}
+variable "vpc-tag" {}
+variable "subnet-pub-tags" {}
+variable "pub-subnet-azs" {}
+variable "subnet-pri-tags" {}
+variable "pri-subnet-azs" {}
+variable "igw-tag" {}
+variable "nat-tag" {}
+variable "public-rt-tag" {}
+variable "private-rt-tag" {}
+variable "eip-id" {}
