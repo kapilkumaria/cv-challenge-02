@@ -39,7 +39,7 @@ resource "aws_instance" "compute" {
   instance_type       = var.instance_type
   key_name            = var.key_name
   subnet_id           = var.subnet_id
-  security_group_ids  = [aws_security_group.ec2_sg.id]
+  vpc_security_group_ids = [aws_security_group.ec2_sg.id] # Corrected argument
   associate_public_ip_address = var.associate_public_ip
   user_data           = var.user_data
   iam_instance_profile = var.iam_instance_profile

@@ -46,10 +46,18 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
+# Dynamically allocate EIP for NAT Gateway
+resource "aws_eip" "nat" {
+  count = var.enable_nat_gateway ? 1 : 0
+
+  vpc = true
+  tags = merge(var.tags, { "Name" = "${var.environment}-nat-eip-${count.index + 1}" })
+}
+
 resource "aws_nat_gateway" "nat" {
   count = var.enable_nat_gateway ? 1 : 0
 
-  allocation_id = var.nat_gateway_eip_allocation_ids[count.index]
+  allocation_id = aws_eip.nat[count.index].id
   subnet_id     = aws_subnet.public[0].id
   tags          = merge(var.tags, { "Name" = "${var.environment}-nat-gateway" })
 }

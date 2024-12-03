@@ -1,24 +1,27 @@
 provider "aws" {
-    profile = "myAWS"
+    profile = "myAWS"  
 }
 
 module "network" {
-    source = "./modules/network"
-    vpc-cidr = var.vpc-cidr
-    vpc-tag = var.vpc-tag
-    subnet-pub-tags = var.subnet-pub-tags
-    subnet-pri-tags = var.subnet-pri-tags
-    pub-subnet-azs = var.pub-subnet-azs
-    pri-subnet-azs = var.pri-subnet-azs
-    igw-tag = var.igw-tag
-    nat-tag = var.nat-tag
-    public-rt-tag = var.public-rt-tag
-    private-rt-tag = var.private-rt-tag
-    eip-id = module.network.eip-id   
-    pub-sub-cidr-block = var.pub-sub-cidr-block
-    pri-sub-cidr-block = var.pri-sub-cidr-block
+  source               = "./modules/network"
+  vpc_cidr_block       = "10.0.0.0/16"
+  public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
+  private_subnet_cidrs = ["10.0.3.0/24", "10.0.4.0/24"]
+  availability_zones   = ["us-east-1a", "us-east-1b"]
+  enable_nat_gateway   = true
+  nat_gateway_eip_allocation_ids = []
+  tags                 = { Environment = "dev", Team = "compute" }
+  environment          = "dev"
 }
 
-
-
-
+module "compute" {
+  source               = "./modules/compute"
+  vpc_id               = module.network.vpc_id
+  subnet_id            = module.network.public_subnet_ids[0] # Choose the first public subnet
+  ami_id               = "ami-0abcdef1234567890"             # Replace with a valid AMI ID
+  instance_type        = "t2.micro"
+  key_name             = "devops1"                      # Replace with your SSH key name
+  instance_count       = 1
+  environment          = "dev"
+  tags                 = { Environment = "dev", Team = "compute" }
+}
