@@ -1,51 +1,20 @@
-#============================ Variables for VPC Module =======================================================
+# Network Configuration
+vpc_cidr_block          = "10.0.0.0/16"
+public_subnet_cidrs     = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs    = ["10.0.3.0/24", "10.0.4.0/24"]
+availability_zones      = ["us-east-1a", "us-east-1b"]
+enable_dns_support      = true
+enable_dns_hostnames    = true
+enable_nat_gateway      = true
+tags                    = { Environment = "dev", Team = "devops" }
+environment             = "dev"
 
-#profile = "MyAWS"
-
-#============================ Variables for VPC Module =======================================================
-region = "us-east-1"
-vpc-cidr = "10.0.0.0/16"
-vpc-tag = 
-    default = [
-    {
-        Name = var.vpc-tag-name
-        Environment = var.vpc-tag-env
-    }
-]
-subnet-pub-tags = ["pub-sub-1a","pub-sub-1b","pub-sub-1c"]
-pub-subnet-azs = ["us-east-1a","us-east-1b","us-east-1c"]
-subnet-pri-tags = ["pri-sub-1a","pri-sub-1b","pri-sub-1c"]
-pri-subnet-azs = ["us-east-1d","us-east-1e","us-east-1f"]
-igw-tag = "projectigw"
-nat-tag = "projectnat"
-public-rt-tag = "public-rt"
-private-rt-tag = "private-rt"
-
-#============================ Variables for SG Module =======================================================
-
-myip = "50.66.177.15/32"
-bastion-sg-tag = "bastion-tag"
-web-sg-tag = "web-tag"
-db-sg-tag = "db-tag"
-
-#============================ Variables for EIP Module =======================================================
-
-eip-tag = "eip-project-tag"
-
-#============================ Variables for EC2 Module =======================================================
-
-region = "us-east-1"
-ec2-ami = {
-    type = map
-
-    default = {
-        us-east-1 = "ami-083654bd07b5da81d"
-        us-east-2 = "ami-074cce78125f09d61"
-        us-west-1 = "ami-03ab7423a204da002"
-        us-west-2 = "ami-013a129d325529d4d"
-    }
-}
-
-instance-type = "t2.micro"
-
-#============================ E  N  D =======================================================
+# Compute Configuration
+ami_id                  = "ami-0866a3c8686eaeeba" # Replace with a valid AMI ID for dev
+instance_type           = "t2.large"
+key_name                = "devops1"         # Replace with your SSH key pair for dev
+instance_count          = 2                      # Example: 2 instances for the dev environment
+user_data               = <<-EOT
+#!/bin/bash
+echo "Hello, Dev Environment!" > /var/www/html/index.html
+EOT
