@@ -1,101 +1,75 @@
-#################################### Creating VPC ############################
-
-resource "aws_vpc" "cv02vpc" {
-    cidr_block = var.vpc-cidr
-    instance_tenancy = "default"
-    enable_dns_support = "true"
-    enable_dns_hostnames = "true"
-
-    tags = {
-        Name = var.vpc-tag
-    }
-} 
-
-#################################### Creating Subnets ############################
-
-resource "aws_subnet" "subnets-pub" {
-    count = length(var.subnet-pub-tags)
-    vpc_id = aws_vpc.cv02vpc.id
-    cidr_block = var.pub-sub-cidr-block[count.index]
-    availability_zone = var.pub-subnet-azs[count.index]
-    map_public_ip_on_launch = true
-    
-    tags = {
-        Name = var.subnet-pub-tags[count.index]
-    }
+resource "aws_vpc" "main" {
+  cidr_block           = var.vpc_cidr_block
+  enable_dns_support   = var.enable_dns_support
+  enable_dns_hostnames = var.enable_dns_hostnames
+  tags                 = merge(var.tags, { "Name" = "${var.environment}-vpc" })
 }
 
-resource "aws_subnet" "subnets-pri" {
-    count = length(var.subnet-pri-tags)
-    vpc_id = aws_vpc.cv02vpc.id
-    cidr_block = var.pri-sub-cidr-block[count.index]
-    availability_zone = var.pri-subnet-azs[count.index]
-    map_public_ip_on_launch = false
+resource "aws_subnet" "public" {
+  count = length(var.public_subnet_cidrs)
 
-    tags = {
-        Name = var.subnet-pri-tags[count.index]
-    }
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_subnet_cidrs[count.index]
+  availability_zone       = element(var.availability_zones, count.index % length(var.availability_zones))
+  map_public_ip_on_launch = true
+  tags                    = merge(var.tags, { "Name" = "${var.environment}-public-subnet-${count.index + 1}" })
 }
 
-#################################### Creating Internet Gateway ############################
+resource "aws_subnet" "private" {
+  count = length(var.private_subnet_cidrs)
+
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidrs[count.index]
+  availability_zone = element(var.availability_zones, count.index % length(var.availability_zones))
+  tags              = merge(var.tags, { "Name" = "${var.environment}-private-subnet-${count.index + 1}" })
+}
 
 resource "aws_internet_gateway" "igw" {
-    vpc_id = aws_vpc.cv02vpc.id
-
-    tags = {
-        Name = var.igw-tag
-    }
+  vpc_id = aws_vpc.main.id
+  tags   = merge(var.tags, { "Name" = "${var.environment}-internet-gateway" })
 }
 
-#################################### Creating NAT Gateway ############################
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+  tags   = merge(var.tags, { "Name" = "${var.environment}-public-route-table" })
+}
+
+resource "aws_route" "default_public" {
+  route_table_id         = aws_route_table.public.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.igw.id
+}
+
+resource "aws_route_table_association" "public" {
+  count          = length(aws_subnet.public)
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public.id
+}
 
 resource "aws_nat_gateway" "nat" {
-    allocation_id = var.eip-id
-    subnet_id = aws_subnet.subnets-pub[0].id
+  count = var.enable_nat_gateway ? 1 : 0
 
-    tags = {
-        Name = var.nat-tag
-    }
+  allocation_id = var.nat_gateway_eip_allocation_ids[count.index]
+  subnet_id     = aws_subnet.public[0].id
+  tags          = merge(var.tags, { "Name" = "${var.environment}-nat-gateway" })
 }
 
-#################################### Creating Public and Private Route Tables ############################
+resource "aws_route_table" "private" {
+  count = var.enable_nat_gateway ? 1 : 0
 
-resource "aws_route_table" "rta-pub" {
-    vpc_id = aws_vpc.cv02vpc.id
-
-    route {
-        cidr_block = "0.0.0.0/0"
-        gateway_id = aws_internet_gateway.igw.id
-    }
-
-    tags = {
-        Name = var.public-rt-tag
-    }
+  vpc_id = aws_vpc.main.id
+  tags   = merge(var.tags, { "Name" = "${var.environment}-private-route-table" })
 }
 
-resource "aws_route_table" "rta-pri" {
-    vpc_id = aws_vpc.cv02vpc.id
-
-    route {
-        cidr_block = "0.0.0.0/0"
-        gateway_id = aws_nat_gateway.nat.id
-    }
-
-    tags = {
-        Name = var.private-rt-tag
-    }
+resource "aws_route" "private_to_nat" {
+  count                  = var.enable_nat_gateway ? 1 : 0
+  route_table_id         = aws_route_table.private[count.index].id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.nat[count.index].id
 }
 
-resource "aws_route_table_association" "pub-rt-association" {
-    count = length(var.subnet-pub-tags)
-    subnet_id = aws_subnet.subnets-pub[count.index].id
-    route_table_id = aws_route_table.rta-pub.id
+resource "aws_route_table_association" "private" {
+  count          = var.enable_nat_gateway ? length(aws_subnet.private) : 0
+  subnet_id      = aws_subnet.private[count.index].id
+  route_table_id = aws_route_table.private[0].id
 }
-
-resource "aws_route_table_association" "pri-rt-association" {
-    count = length(var.subnet-pri-tags)
-    subnet_id = aws_subnet.subnets-pri[count.index].id
-    route_table_id = aws_route_table.rta-pri.id
-}
-
-#################################### End #######################################################
