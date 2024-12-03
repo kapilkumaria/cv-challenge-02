@@ -12,8 +12,9 @@ environment             = "dev"
 # Compute Configuration
 ami_id                  = "ami-0866a3c8686eaeeba" # Replace with a valid AMI ID for dev
 instance_type           = "t2.large"
-key_name                = "devops1"         # Replace with your SSH key pair for dev
-instance_count          = 2                      # Example: 2 instances for the dev environment
+#instance_type           = ""
+key_name                = "devops1"               # Replace with your SSH key pair for dev
+instance_count          = 2                       # Example: 2 instances for the dev environment
 user_data               = <<-EOT
 #!/bin/bash
 echo "Hello, Dev Environment!" > /var/www/html/index.html

@@ -18,10 +18,11 @@ module "compute" {
   source               = "./modules/compute"
   vpc_id               = module.network.vpc_id
   subnet_id            = module.network.public_subnet_ids[0] # Choose the first public subnet
-  ami_id               = "ami-0866a3c8686eaeeba"             # Replace with a valid AMI ID
-  instance_type        = "t2.medium"
-  key_name             = "devops1"                      # Replace with your SSH key name
-  instance_count       = 1
+  ami_id               = var.ami_id                          # Pass the value from root variables
+  #ami_id               = ""                                 # Replace with a valid AMI ID
+  instance_type        = var.instance_type                   # Use value from `dev.tfvars`
+  key_name             = "devops1"                           # Replace with your SSH key name
+  instance_count       = var.instance_count                  # Pass the value from `dev.tfvars`
   environment          = "dev"
   tags                 = { Environment = "dev", Team = "compute" }
 }
