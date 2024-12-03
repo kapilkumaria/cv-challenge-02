@@ -97,6 +97,11 @@ variable "key_name" {
   type        = string
 }
 
+variable "key_path" {
+  description = "Key pair name for SSH access"
+  type        = string
+}
+
 variable "subnet_id" {
   description = "Subnet ID where the EC2 instance will be deployed"
   type        = string

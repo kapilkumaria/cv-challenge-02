@@ -51,3 +51,32 @@ resource "aws_instance" "compute" {
 
   tags = merge(var.tags, { "Name" = "${var.environment}-instance-${count.index + 1}" })
 }
+
+# Dynamically Generate Ansible Inventory
+resource "local_file" "ansible_inventory" {
+  content = <<EOT
+[application]
+%{ for ip in aws_instance.compute.*.public_ip ~}
+${ip} ansible_user=ubuntu ansible_ssh_private_key_file=~/devops1.pem
+%{ endfor }
+
+[monitoring]
+%{ for ip in aws_instance.compute.*.public_ip ~}
+${ip} ansible_user=ubuntu ansible_ssh_private_key_file=~/devops1.pem
+%{ endfor }
+
+[traefik]
+%{ for ip in aws_instance.compute.*.public_ip ~}
+${ip} ansible_user=ubuntu ansible_ssh_private_key_file=~/devops1.pem
+%{ endfor }
+EOT
+  filename = "${path.module}/../ansible/inventory/ansible.ini"
+}
+
+# Trigger Ansible Playbook After Terraform Deployment
+resource "null_resource" "run_ansible" {
+  provisioner "local-exec" {
+    command = "ansible-playbook -i ../ansible/inventory/ansible.ini ../ansible/playbooks/site.yml"
+  }
+  depends_on = [aws_instance.compute, local_file.ansible_inventory]
+}

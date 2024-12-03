@@ -22,6 +22,7 @@ module "compute" {
   #ami_id               = ""                                 # Replace with a valid AMI ID
   instance_type        = var.instance_type                   # Use value from `dev.tfvars`
   key_name             = "devops1"                           # Replace with your SSH key name
+  key_path             = "~/devops1.pem"                     # Replace with your SSH key path 
   instance_count       = var.instance_count                  # Pass the value from `dev.tfvars`
   environment          = "dev"
   tags                 = { Environment = "dev", Team = "compute" }
