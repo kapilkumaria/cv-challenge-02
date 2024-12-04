@@ -46,51 +46,6 @@ variable "ingress_rules" {
       cidr_blocks        = ["0.0.0.0/0"],
       ipv6_cidr_blocks   = [],
       security_group_ids = []
-    },
-    {
-      description        = "Allow HTTPS",
-      from_port          = 443,
-      to_port            = 443,
-      protocol           = "tcp",
-      cidr_blocks        = ["0.0.0.0/0"],
-      ipv6_cidr_blocks   = [],
-      security_group_ids = []
-    },
-    {
-      description        = "Allow Prometheus",
-      from_port          = 9090,
-      to_port            = 9090,
-      protocol           = "tcp",
-      cidr_blocks        = ["0.0.0.0/0"],
-      ipv6_cidr_blocks   = [],
-      security_group_ids = []
-    },
-    {
-      description        = "Allow Loki",
-      from_port          = 3100,
-      to_port            = 3100,
-      protocol           = "tcp",
-      cidr_blocks        = ["0.0.0.0/0"],
-      ipv6_cidr_blocks   = [],
-      security_group_ids = []
-    },
-    {
-      description        = "Allow Grafana",
-      from_port          = 3000,
-      to_port            = 3000,
-      protocol           = "tcp",
-      cidr_blocks        = ["0.0.0.0/0"],
-      ipv6_cidr_blocks   = [],
-      security_group_ids = []
-    },
-    {
-      description        = "Allow Traefik Dashboard",
-      from_port          = 8080,
-      to_port            = 8080,
-      protocol           = "tcp",
-      cidr_blocks        = ["0.0.0.0/0"],
-      ipv6_cidr_blocks   = [],
-      security_group_ids = []
     }
   ]
 }
@@ -136,13 +91,14 @@ variable "instance_type" {
   default     = "t2.micro"
 }
 
+
 variable "key_name" {
   description = "Key pair name for SSH access"
   type        = string
 }
 
 variable "key_path" {
-  description = "Path to the private key file for SSH access"
+  description = "Key pair name for SSH access"
   type        = string
 }
 
@@ -187,3 +143,5 @@ variable "route53_zone_id" {
   type        = string
   default     = "Z05768553DXM5B4AIP8FI"
 }
+
+
