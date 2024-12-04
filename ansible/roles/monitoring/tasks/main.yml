@@ -87,32 +87,25 @@
       - name: app_network
     labels:
       traefik.enable: "true"
-      # HTTP Router for cAdvisor
-      traefik.http.routers.cadvisor-http.rule: "(Host(`boss.kapilkumaria.com`) && PathPrefix(`/cadvisor`))"
-      traefik.http.routers.cadvisor-http.entrypoints: "web"
-      traefik.http.routers.cadvisor-http.middlewares: "strip-cadvisor-prefix"
-      # HTTPS Router for cAdvisor
-      traefik.http.routers.cadvisor-https.rule: "(Host(`boss.kapilkumaria.com`) && PathPrefix(`/cadvisor`))"
-      traefik.http.routers.cadvisor-https.entrypoints: "websecure"
-      traefik.http.routers.cadvisor-https.middlewares: "strip-cadvisor-prefix"
-      traefik.http.routers.cadvisor-https.tls.certresolver: "letsencryptresolver"
-      # Middleware to strip /cadvisor prefix
-      traefik.http.middlewares.strip-cadvisor-prefix.stripprefix.prefixes: "/cadvisor"
-      # Service for cAdvisor
-      traefik.http.services.cadvisor.loadbalancer.server.port: "8080"
 
-    # labels:
-    #   traefik.enable: "true"
-    #   traefik.http.routers.cadvisor-http.rule: "(Host(`boss.kapilkumaria.com`) && PathPrefix(`/cadvisor`))"
-    #   traefik.http.routers.cadvisor-http.entrypoints: "web"
-    #   traefik.http.routers.cadvisor-http.middlewares: "strip-cadvisor-prefix"
-    #   traefik.http.services.cadvisor.loadbalancer.server.port: "8080"
-    #   traefik.http.routers.cadvisor-https.rule: "(Host(`boss.kapilkumaria.com`) && PathPrefix(`/cadvisor`))"
-    #   traefik.http.routers.cadvisor-https.entrypoints: "websecure"
-    #   traefik.http.routers.cadvisor-https.tls.certresolver: "letsencryptresolver"
-    #   traefik.http.routers.cadvisor-https.middlewares: "strip-cadvisor-prefix"
-    #   traefik.http.services.cadvisor.loadbalancer.server.port: "8080"
-    #   traefik.http.middlewares.strip-cadvisor-prefix.stripprefix.prefixes: "/cadvisor"
+      # HTTP Router for cAdvisor
+      traefik.http.routers.cadvisor-http.rule: "Host(`boss.kapilkumaria.com`) && PathPrefix(`/cadvisor`)"
+      traefik.http.routers.cadvisor-http.entrypoints: "web"
+      traefik.http.routers.cadvisor-http.middlewares: "add-cadvisor-redirect,cadvisor-strip-prefix"
+      # HTTPS Router for cAdvisor
+      traefik.http.routers.cadvisor-https.rule: "Host(`boss.kapilkumaria.com`) && PathPrefix(`/cadvisor`)"
+      traefik.http.routers.cadvisor-https.entrypoints: "websecure"
+      traefik.http.routers.cadvisor-https.middlewares: "add-cadvisor-redirect,cadvisor-strip-prefix"
+      traefik.http.routers.cadvisor-https.tls.certresolver: "letsencryptresolver"
+      # Middleware: Redirect /cadvisor to /cadvisor/containers/
+      traefik.http.middlewares.add-cadvisor-redirect.redirectregex.regex: "^/cadvisor$"
+      traefik.http.middlewares.add-cadvisor-redirect.redirectregex.replacement: "/cadvisor/containers/"
+      traefik.http.middlewares.add-cadvisor-redirect.redirectregex.permanent: "true"
+      # Middleware: Strip /cadvisor prefix
+      traefik.http.middlewares.cadvisor-strip-prefix.stripprefix.prefixes: "/cadvisor"
+      # cAdvisor Service
+      traefik.http.services.cadvisor.loadbalancer.server.port: "8080"
+       
 
 - name: Copy Loki configuration to target machine
   ansible.builtin.copy:
@@ -139,11 +132,11 @@
       traefik.http.routers.loki-http.entrypoints: "web"
       traefik.http.services.loki.loadbalancer.server.port: "3100"
 
-- name: Wait for Loki to be ready
-  ansible.builtin.wait_for:
-    host: "{{ ansible_host }}"
-    port: 3100
-    timeout: 30
+# - name: Wait for Loki to be ready
+#   ansible.builtin.wait_for:
+#     host: "{{ ansible_host }}"
+#     port: 3100
+#     timeout: 30
 
 - name: Copy Promtail configuration to target machine
   ansible.builtin.copy:

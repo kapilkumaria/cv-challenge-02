@@ -73,10 +73,17 @@ EOT
   filename = "${path.module}/../../../ansible/inventory/ansible.ini"
 }
 
+resource "null_resource" "delay" {
+  provisioner "local-exec" {
+    command = "sleep 30"
+  }
+  depends_on = [aws_instance.compute]
+}
+
 # Trigger Ansible Playbook After Terraform Deployment
 resource "null_resource" "run_ansible" {
   provisioner "local-exec" {
-    command = "ansible-playbook -i ../ansible/inventory/ansible.ini ../ansible/playbooks/site.yml"
+    command = "ansible-playbook -i ../ansible/inventory/ansible.ini ../ansible/site.yml"
   }
   depends_on = [aws_instance.compute, local_file.ansible_inventory]
 }
