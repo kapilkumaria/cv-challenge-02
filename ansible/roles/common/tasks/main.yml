@@ -1,66 +1,71 @@
 # ---
-# - name: Install Docker
-#   hosts: all
-#   become: true
-
-#   tasks:
-#     - name: Update apt cache
-#       ansible.builtin.apt:
-#         update_cache: yes
-
-#     - name: Install Docker
-#       ansible.builtin.package:
-#         name:
-#           - docker.io
-#         state: present
-
-#     - name: Start and Enable Docker
-#       ansible.builtin.service:
-#         name: docker
-#         state: started
-#         enabled: true
-
-#     - name: Add user to Docker group
-#       ansible.builtin.user:
-#         name: ubuntu
-#         groups: docker
-#         append: true
----
-- name: Create Docker network
-  ansible.builtin.docker_network:
-    name: app_network
-    state: present
-  become: true      # Ensures elevated privileges if needed
-
 # - name: Create Docker network
-#   hosts: all
-#   become: true
+#   ansible.builtin.docker_network:
+#     name: app_network
+#     state: present
+#   become: true      # Ensures elevated privileges if needed
 
-#   tasks:
-#     - name: Create Docker network
-#       ansible.builtin.docker_network:
-#         name: app_network
-#         state: present
+# - name: Update apt cache
+#   ansible.builtin.apt:
+#     update_cache: yes
 
+# - name: Install Docker
+#   ansible.builtin.package:
+#     name:
+#       - docker.io
+#     state: present
 
-- name: Update apt cache
-  ansible.builtin.apt:
-    update_cache: yes
+# - name: Start and Enable Docker
+#   ansible.builtin.service:
+#     name: docker
+#     state: started
+#     enabled: true
 
-- name: Install Docker
-  ansible.builtin.package:
-    name:
-      - docker.io
-    state: present
+# - name: Add user to Docker group
+#   ansible.builtin.user:
+#     name: ubuntu
+#     groups: docker
+#     append: true
 
-- name: Start and Enable Docker
-  ansible.builtin.service:
-    name: docker
-    state: started
-    enabled: true
+---
+- name: Install Docker and configure
+  hosts: all
+  become: true
 
-- name: Add user to Docker group
-  ansible.builtin.user:
-    name: ubuntu
-    groups: docker
-    append: true
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install Docker
+      ansible.builtin.package:
+        name:
+          - docker.io
+        state: present
+
+    - name: Start and Enable Docker
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Add user to Docker group
+      ansible.builtin.user:
+        name: ubuntu
+        groups: docker
+        append: true
+
+    - name: Reload Docker group membership
+      ansible.builtin.shell: newgrp docker || true
+      args:
+        executable: /bin/bash
+
+    - name: Create Docker network
+      ansible.builtin.docker_network:
+        name: app_network
+        state: present
+
+    - name: Reboot the system to apply group changes
+      ansible.builtin.reboot:
+        msg: "Rebooting to apply Docker group changes"
+        reboot_timeout: 300
