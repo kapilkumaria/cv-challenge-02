@@ -95,11 +95,13 @@
       #traefik.http.routers.traefik-dashboard.middlewares: "dashboard-auth,dashboard-strip-prefix"
 
       # HTTPS Router for Dashboard
+      #traefik.http.routers.traefik-dashboard-https.rule: "Host(`boss.kapilkumaria.com`) && PathPrefix(`/dashboard`)"
       traefik.http.routers.traefik-dashboard-https.rule: "Host(`boss.kapilkumaria.com`) && PathPrefix(`/dashboard`)"
+
       traefik.http.routers.traefik-dashboard-https.entrypoints: "websecure"
       traefik.http.routers.traefik-dashboard-https.tls.certresolver: "letsencryptresolver"
-      traefik.http.routers.traefik-dashboard-https.middlewares: "dashboard-auth,dashboard-strip-prefix"
-
+      # traefik.http.routers.traefik-dashboard-https.middlewares: "dashboard-auth,dashboard-strip-prefix"
+      traefik.http.routers.traefik-dashboard-https.middlewares: "dashboard-strip-prefix"
       # Middleware: Basic Auth for Dashboard
       traefik.http.middlewares.dashboard-auth.basicauth.users: "admin:$(openssl passwd -apr1 password)"
 
