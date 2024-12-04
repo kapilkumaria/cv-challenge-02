@@ -70,3 +70,84 @@
     networks:
       - name: app_network
 
+
+- name: Deploy cAdvisor container
+  ansible.builtin.docker_container:
+    name: cadvisor
+    image: kappu1512/cadvisor:v0.47.0
+    state: started
+    ports:
+      - "8082:8080"
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:rw"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+    networks:
+      - name: app_network
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.cadvisor-http.rule: "(Host(`boss.kapilkumaria.com`) && PathPrefix(`/cadvisor`))"
+      traefik.http.routers.cadvisor-http.entrypoints: "web"
+      traefik.http.routers.cadvisor-http.middlewares: "strip-cadvisor-prefix"
+      traefik.http.services.cadvisor.loadbalancer.server.port: "8080"
+      traefik.http.routers.cadvisor-https.rule: "(Host(`boss.kapilkumaria.com`) && PathPrefix(`/cadvisor`))"
+      traefik.http.routers.cadvisor-https.entrypoints: "websecure"
+      traefik.http.routers.cadvisor-https.tls.certresolver: "letsencryptresolver"
+      traefik.http.routers.cadvisor-https.middlewares: "strip-cadvisor-prefix"
+      traefik.http.services.cadvisor.loadbalancer.server.port: "8080"
+      traefik.http.middlewares.strip-cadvisor-prefix.stripprefix.prefixes: "/cadvisor"
+
+- name: Copy Loki configuration to target machine
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/loki-config.yml"
+    dest: "/home/ubuntu/loki-config.yml"
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+
+- name: Deploy Loki container
+  community.docker.docker_container:
+    name: loki
+    image: kappu1512/loki
+    state: started
+    ports:
+      - "3100:3100"
+    volumes:
+      - "/home/ubuntu/loki-config.yml:/etc/loki/loki-config.yaml"
+    networks:
+      - name: app_network
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.loki-http.rule: "(Host(`boss.kapilkumaria.com`) && PathPrefix(`/loki`))"
+      traefik.http.routers.loki-http.entrypoints: "web"
+      traefik.http.services.loki.loadbalancer.server.port: "3100"
+
+- name: Wait for Loki to be ready
+  ansible.builtin.wait_for:
+    host: "{{ ansible_host }}"
+    port: 3100
+    timeout: 30
+
+- name: Copy Promtail configuration to target machine
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/promtail-config.yml"
+    dest: "/home/ubuntu/promtail-config.yml"
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+
+- name: Deploy Promtail container
+  community.docker.docker_container:
+    name: promtail
+    image: kappu1512/promtail:latest
+    state: started
+    volumes:
+      - "/home/ubuntu/promtail-config.yml:/etc/promtail/promtail-config.yml"
+    networks:
+      - name: app_network
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.promtail-http.rule: "(Host(`boss.kapilkumaria.com`) && PathPrefix(`/promtail`))"
+      traefik.http.routers.promtail-http.entrypoints: "web"
+      traefik.http.services.promtail.loadbalancer.server.port: "9080"
