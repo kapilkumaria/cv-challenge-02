@@ -3,3 +3,4 @@
   ansible.builtin.docker_network:
     name: app_network
     state: present
+  become: true      # Ensures elevated privileges if needed

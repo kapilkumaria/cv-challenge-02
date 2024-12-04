@@ -1,22 +1,54 @@
+- name: Copy acme.json to target machine
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/acme.json"
+    dest: "/home/ubuntu/acme.json"
+    owner: ubuntu
+    group: ubuntu
+    mode: '0600'
+
 - name: Deploy Traefik container
   ansible.builtin.docker_container:
     name: traefik
-    image: traefik:v2.10.1
+    image: kappu1512/traefik:v2.10.1
     state: started
     restart_policy: unless-stopped
     command:
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--entrypoints.websecure.address=:443"
       - "--providers.docker=true"
+      - "--providers.docker.exposedByDefault=false"
+      - "--api"
       - "--certificatesresolvers.letsencryptresolver.acme.email=kapil.kumaria@gmail.com"
       - "--certificatesresolvers.letsencryptresolver.acme.storage=/acme.json"
       - "--certificatesresolvers.letsencryptresolver.acme.tlschallenge=true"
+      - "--accesslog=true"
+      - "--log.level=ERROR"
     ports:
       - "80:80"
       - "443:443"
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - "{{ role_path }}/files/acme.json:/acme.json"
+      - "/home/ubuntu/acme.json:/acme.json"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.dashboard.rule: "Host(`boss.kapilkumaria.com`) && PathPrefix(`/dashboard`)"
+      traefik.http.routers.http-to-https.rule: "Host(`boss.kapilkumaria.com`) || Host(`www.boss.kapilkumaria.com`)"
+      traefik.http.routers.http-to-https.entrypoints: "web"
+      traefik.http.services.http-to-https.loadbalancer.server.port: "8080"
+      traefik.http.routers.traefik-https.middlewares: "www-to-non-www"
+      traefik.http.middlewares.www-to-non-www.redirectregex.regex: "^https?://www\\.(.+)"
+      traefik.http.middlewares.www-to-non-www.redirectregex.replacement: "https://$1"
+      traefik.http.middlewares.www-to-non-www.redirectregex.permanent: "true"
+      traefik.http.routers.backend.rule: "PathPrefix(`/api/`)"
+      traefik.http.routers.backend.entrypoints: "websecure"
+      traefik.http.routers.backend.middlewares: "rewrite-api-overview"
+      traefik.http.routers.backend.tls.certresolver: "letsencryptresolver"
+      traefik.http.middlewares.rewrite-api-overview.replacepathregex.regex: "/api/overview"
+      traefik.http.middlewares.rewrite-api-overview.replacepathregex.replacement: "/api/v1/openapi.json"
+      traefik.http.middlewares.dashboard-strip-prefix.stripprefix.prefixes: "/dashboard"
+      traefik.http.routers.dashboard.middlewares: "dashboard-strip-prefix"
     networks:
       - name: app_network
