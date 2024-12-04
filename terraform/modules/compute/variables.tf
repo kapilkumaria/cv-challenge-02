@@ -34,7 +34,7 @@ variable "ingress_rules" {
       from_port          = 22,
       to_port            = 22,
       protocol           = "tcp",
-      cidr_blocks        = ["0.0.0.0/0"],
+      cidr_blocks        = ["50.66.177.15/32"],
       ipv6_cidr_blocks   = [],
       security_group_ids = []
     },
