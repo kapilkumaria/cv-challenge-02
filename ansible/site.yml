@@ -1,0 +1,8 @@
+---
+- name: Deploy all services
+  hosts: localhost
+  roles:
+    - role: common  # Create network
+    - role: application # Deploy backend and frontend
+    - role: monitoring  # Deploy monitoring stack
+    - role: traefik # Deploy Traefik

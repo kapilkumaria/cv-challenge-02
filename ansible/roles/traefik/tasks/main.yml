@@ -1,0 +1,22 @@
+- name: Deploy Traefik container
+  ansible.builtin.docker_container:
+    name: traefik
+    image: traefik:v2.10.1
+    state: started
+    restart_policy: unless-stopped
+    command:
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.docker=true"
+      - "--certificatesresolvers.letsencryptresolver.acme.email=kapil.kumaria@gmail.com"
+      - "--certificatesresolvers.letsencryptresolver.acme.storage=/acme.json"
+      - "--certificatesresolvers.letsencryptresolver.acme.tlschallenge=true"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - "{{ role_path }}/files/acme.json:/acme.json"
+    networks:
+      - name: app_network

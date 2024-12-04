@@ -1,0 +1,65 @@
+- name: Deploy Backend container
+  ansible.builtin.docker_container:
+    name: backend
+    image: kappu1512/backend
+    state: started
+    env_file: "{{ role_path }}/files/backend.env"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.backend-http.rule: "(Host(`boss.kapilkumaria.com`) && PathPrefix(`/api/v1`))"
+      traefik.http.routers.backend-http.entrypoints: "web"
+      traefik.http.services.backend.loadbalancer.server.port: "8000"
+    networks:
+      - name: app_network
+
+- name: Wait for Backend to be Ready
+  ansible.builtin.wait_for:
+    host: backend
+    port: 8000
+    timeout: 30
+    state: started
+
+- name: Deploy Frontend container
+  ansible.builtin.docker_container:
+    name: frontend
+    image: kappu1512/frontend
+    state: started
+    env_file: "{{ role_path }}/files/frontend.env"
+    ports:
+      - "5173:5173"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.frontend-http.rule: "(Host(`boss.kapilkumaria.com`))"
+      traefik.http.routers.frontend-http.entrypoints: "web"
+      traefik.http.services.frontend.loadbalancer.server.port: "80"
+    networks:
+      - name: app_network
+
+
+
+- name: Deploy Postgres container
+  ansible.builtin.docker_container:
+    name: db
+    image: postgres:13
+    state: started
+    env_file: "{{ role_path }}/files/db.env"
+    networks:
+      - name: app_network
+
+
+- name: Deploy Prometheus container
+  ansible.builtin.docker_container:
+    name: prometheus
+    image: prom/prometheus
+    state: started
+    ports:
+      - "9090:9090"
+    volumes:
+      - "{{ role_path }}/files/prometheus.yaml:/etc/prometheus/prometheus.yml"
+    labels:
+      traefik.enable: "true"
+      traefik.http.services.prometheus.loadbalancer.server.port: "9090"
+      traefik.http.routers.prometheus-http.rule: "(Host(`boss.kapilkumaria.com`) && PathPrefix(`/prometheus`))"
+      traefik.http.routers.prometheus-http.entrypoints: "web"
+    networks:
+      - name: app_network

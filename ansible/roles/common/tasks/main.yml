@@ -1,0 +1,5 @@
+---
+- name: Create Docker network
+  ansible.builtin.docker_network:
+    name: app_network
+    state: present
