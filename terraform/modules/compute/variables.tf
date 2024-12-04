@@ -34,6 +34,15 @@ variable "ingress_rules" {
       from_port          = 22,
       to_port            = 22,
       protocol           = "tcp",
+      cidr_blocks        = ["52.2.109.123/32"],
+      ipv6_cidr_blocks   = [],
+      security_group_ids = []
+    },
+    {
+      description        = "Allow SSH",
+      from_port          = 22,
+      to_port            = 22,
+      protocol           = "tcp",
       cidr_blocks        = ["50.66.177.15/32"],
       ipv6_cidr_blocks   = [],
       security_group_ids = []

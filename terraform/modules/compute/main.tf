@@ -73,9 +73,9 @@ EOT
   filename = "${path.module}/../../../ansible/inventory/ansible.ini"
 }
 
-resource "null_resource" "delay" {
+resource "null_resource" "wait_for_instance" {
   provisioner "local-exec" {
-    command = "sleep 30"
+    command = "sleep 60"
   }
   depends_on = [aws_instance.compute]
 }
@@ -104,5 +104,6 @@ resource "null_resource" "run_ansible" {
   provisioner "local-exec" {
     command = "ansible-playbook -i ../ansible/inventory/ansible.ini ../ansible/site.yml"
   }
-  depends_on = [aws_instance.compute, local_file.ansible_inventory]
+  depends_on = [null_resource.wait_for_instance]
+  #depends_on = [aws_instance.compute, local_file.ansible_inventory]
 }
