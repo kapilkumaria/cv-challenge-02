@@ -31,3 +31,42 @@
       traefik.http.routers.prometheus-https.service: "prometheus"
     networks:
       - name: app_network
+
+
+- name: Copy Grafana configuration to target machine
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/grafana.yml"
+    dest: "/home/ubuntu/grafana.yml"
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+
+- name: Deploy Grafana container
+  ansible.builtin.docker_container:
+    name: grafana
+    image: kappu1512/grafana
+    state: started
+    ports:
+      - "3000:3000"  # Map container port 3000 to host port 3000
+    volumes:
+      - "/home/ubuntu/grafana.yml:/etc/grafana/provisioning/datasources/grafana.yaml"
+    env:
+      GF_SERVER_ROOT_URL: "http://localhost:3000/grafana"
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    labels:
+      traefik.enable: "true"
+      # HTTP Service
+      traefik.http.services.grafana.loadbalancer.server.port: "3000"
+      # HTTP Router
+      traefik.http.routers.grafana-http.rule: "((Host(`boss.kapilkumaria.com`) || Host(`www.boss.kapilkumaria.com`)) && PathPrefix(`/grafana`))"
+      traefik.http.routers.grafana-http.entrypoints: "web"
+      # HTTP to HTTPS redirect
+      traefik.http.routers.grafana-https.middlewares: "www-to-non-www"
+      # HTTPS Router
+      traefik.http.routers.grafana-https.rule: "((Host(`boss.kapilkumaria.com`) || Host(`www.boss.kapilkumaria.com`)) && PathPrefix(`/grafana`))"
+      traefik.http.routers.grafana-https.entrypoints: "websecure"
+      traefik.http.routers.grafana-https.tls.certresolver: "letsencryptresolver"
+      traefik.http.routers.grafana-https.service: "grafana"
+    networks:
+      - name: app_network
+
