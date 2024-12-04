@@ -10,7 +10,7 @@
 - name: Deploy Prometheus container
   ansible.builtin.docker_container:
     name: prometheus
-    image: prom/prometheus
+    image: kappu1512/prometheus:latest
     state: started
     ports:
       - "9090:9090"
@@ -44,7 +44,7 @@
 - name: Deploy Grafana container
   ansible.builtin.docker_container:
     name: grafana
-    image: kappu1512/grafana
+    image: kappu1512/grafana:latest
     state: started
     ports:
       - "3000:3000"  # Map container port 3000 to host port 3000
@@ -109,7 +109,7 @@
 - name: Deploy Loki container
   community.docker.docker_container:
     name: loki
-    image: kappu1512/loki
+    image: kappu1512/loki:latest
     state: started
     ports:
       - "3100:3100"
