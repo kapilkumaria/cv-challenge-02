@@ -1,0 +1,33 @@
+- name: Copy Prometheus configuration to target machine
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/prometheus.yml"
+    dest: "/home/ubuntu/prometheus.yml"
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+
+
+- name: Deploy Prometheus container
+  ansible.builtin.docker_container:
+    name: prometheus
+    image: prom/prometheus
+    state: started
+    ports:
+      - "9090:9090"
+    volumes:
+      - "/home/ubuntu/prometheus.yml:/etc/prometheus/prometheus.yml"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.external-url=/prometheus'
+    labels:
+      traefik.enable: "true"
+      traefik.http.services.prometheus.loadbalancer.server.port: "9090"
+      traefik.http.routers.prometheus-http.rule: "((Host(`boss.kapilkumaria.com`) || Host(`www.boss.kapilkumaria.com`)) && PathPrefix(`/prometheus`))"
+      traefik.http.routers.prometheus-http.entrypoints: "web"
+      traefik.http.routers.prometheus-https.middlewares: "www-to-non-www"
+      traefik.http.routers.prometheus-https.rule: "((Host(`boss.kapilkumaria.com`) || Host(`www.boss.kapilkumaria.com`)) && PathPrefix(`/prometheus`))"
+      traefik.http.routers.prometheus-https.entrypoints: "websecure"
+      traefik.http.routers.prometheus-https.tls.certresolver: "letsencryptresolver"
+      traefik.http.routers.prometheus-https.service: "prometheus"
+    networks:
+      - name: app_network
