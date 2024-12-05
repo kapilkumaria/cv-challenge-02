@@ -92,7 +92,7 @@ The application stack Ansible role will pull these images from Docker Hub.
 
 
 
-2. Ensure your design accounts for:  
+<!-- 2. Ensure your design accounts for:  
    - Shared Docker networks.  
    - Routing between services.  
 
@@ -109,7 +109,7 @@ The application stack Ansible role will pull these images from Docker Hub.
      - Set up and run the **Monitoring Stack** (using Docker Compose).
      - Configure routing with Traefik.
 
----
+--- -->
 
 
 
