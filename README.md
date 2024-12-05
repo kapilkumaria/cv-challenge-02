@@ -1,39 +1,40 @@
-### Week 2 Task: Automate Deployment with Terraform and Ansible  
+## Automate Deployment with Terraform and Ansible - Full Stack Application with Monitoring and Logging
 
-Welcome to Week 2 of the **DevOps CV Challenge**! This week, you’ll be diving into the exciting world of **Infrastructure as Code (IaC)** and **Configuration Management (CM)**. Get ready to use **Terraform** for provisioning cloud infrastructure and **Ansible** for configuring and deploying your application and monitoring stacks. By the end of this task, you'll not only gain hands-on experience automating infrastructure but also learn how to seamlessly integrate multiple tools to create a fully automated deployment pipeline..  
+This project focuses on automating the deployment of a full-stack application and its associated monitoring and logging infrastructure using Terraform and Ansible. The workflow ensures seamless provisioning, configuration, and deployment of application and monitoring stacks with path-based routing, SSL certificate management, and DNS updates.
 
----
+Key improvements over previous iterations include full automation of infrastructure and deployment processes. The same application source code from Week 1 is utilized, but the setup is fully automated to reduce manual intervention and enhance scalability and reproducibility.
 
-### **Task Overview**  
+## Objectives
 
-You will:
-1. **Prebuild and push Docker images for the application stack from Week 1..**
-2. **Design and provision cloud infrastructure using Terraform.**
-3. **Use Terraform to:**
-   - Trigger Ansible playbooks for:
-     - Deploying the application stack.
-     - Deploying the monitoring stack.
-     - Configuring routing with Traefik or Nginx.
-   - Automatically generate the `inventory.ini` file for Ansible.  
-4. **Set up application and monitoring stacks using Ansible roles.**
+Automate infrastructure provisioning using Terraform to manage compute, networking, and DNS resources on AWS.
+Streamline application and monitoring stack deployment using Ansible, organized into modular roles (e.g., application, database, monitoring, Traefik, nginx, common).
+Ensure secure routing with Traefik, including SSL certificate issuance and DNS A-record updates for public IPs.
+Use prebuilt Docker images for the application stack, stored in Docker Hub, for faster deployments.
+Provide a single command deployment workflow:
 
-The final deployment will be tested by running:
-```bash
-terraform apply -auto-approve
 ```
-This command should provision the infrastructure, deploy all services, and configure routing automatically.
+terraform apply --auto-approve
+```
+### **Components** 
+--- 
+#### **Infrastructure Provisioning (Terraform)**
 
----
+- **Compute Resources**: AWS EC2 instances for hosting the application and monitoring stacks.
+- **Networking Resources**: Configures VPC, subnets, security groups, and internet gateways.
+- **DNS Management**: Adds A-record entries in AWS Route53 pointing to EC2 public IPs.
+- **Integration with Ansible**:
+  1. Dynamically generates inventory.ini files.
+  2. Triggers Ansible playbooks post-provisioning.
 
-### **Components**  
+#### **2. Application Stack**
+- **Frontend:** React-based user interface.
+- **Backend:** FastAPI for handling API requests.
+- **Database:** PostgreSQL for persistent data storage.
+- **Reverse Proxy:** Traefik for path-based routing between services and SSL management.
 
-#### **1. Application Stack(Same app as Week 1)**
-- **Frontend:** A React application.
-- **Backend:** A FastAPI service.
-- **Database:** PostgreSQL.
-- **Reverse Proxy:** Traefik or Nginx (for routing between services).
+You must prebuild the Docker images for the **Frontend** and **Backend** and push them to your public Docker Hub repositories:
+Reference: We built docker images and pushed that to DockerHub in https://github.com/kapilkumaria/cv-challenge01
 
-You must prebuild the Docker images for the **Frontend** and **Backend** and push them to your public Docker Hub repositories:  
 - Example frontend image: `docker.io/<your_username>/frontend:latest`  
 - Example backend image: `docker.io/<your_username>/backend:latest`  
 
@@ -41,13 +42,12 @@ The application stack Ansible role will pull these images from Docker Hub.
 
 ---
 
-#### **2. Monitoring Stack**
-- **Prometheus** for metrics collection.
-- **Grafana** for visualization (configured with dashboards for cAdvisor and Loki).
-- **cAdvisor** for container-level metrics.
-- **Loki** for log aggregation.
-- **Promtail** for log collection.
-
+#### **3. Monitoring Stack**
+- **Prometheus** Collects and stores application metrics.
+- **Grafana** Provides visualizations with preconfigured dashboards for cAdvisor and Loki.
+- **cAdvisor** Monitors container-level metrics.
+- **Loki** Aggregates logs from the application and system.
+- **Promtail** Collects logs from the application and system.
 ---
 
 #### **3. Deployment Workflow**
@@ -64,14 +64,34 @@ The application stack Ansible role will pull these images from Docker Hub.
 
 ---
 
-### **What You Need to Do**  
 
-#### **Step 1: Prebuild Docker Images**  
-1. Build the Docker images for the **Frontend** and **Backend** applications(Same app as Week 1).
-2. Push the images to your public Docker Hub repositories.  
 
-#### **Step 2: Design the Architecture**
-1. Create an architecture diagram for the deployment, showing how the application and monitoring stacks interact.  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 2. Ensure your design accounts for:  
    - Shared Docker networks.  
    - Routing between services.  
@@ -91,39 +111,20 @@ The application stack Ansible role will pull these images from Docker Hub.
 
 ---
 
-### **Submission Requirements**  
-- **Docker Hub Links:**  
-  Provide the links to your prebuilt Docker images.  
-- **Repository:**  
-  Push your Terraform and Ansible code to your GitHub repository and share the link.  
-- **Architecture Diagram:**  
-  Upload the diagram as an image file in the repository.
-- **Documentation:**
-  Write a detailed blog post documenting your approach, the architecture, and the deployment process. The blog should include the architecture diagram and provide insights   into the tools used, the challenges faced, and how you overcame them. Publish the post on any blog platform of your choice (e.g., Medium, Dev.to, personal blog).
-  Share the link to your blog post in the submission.
 
-Submit your project via this [submission form](#).
 
----
-
-### **How Testing Will Be Done**
-1. The reviewers will clone your repository.  
-2. Run:
+### **Test Your Application By**
+1. Run:
    ```bash
    terraform apply -auto-approve
    ```
-3. This command should:
+2. This command should:
    - Provision the infrastructure.
    - Automatically deploy both the application and monitoring stacks.
    - Configure routing for all services.  
 
-4. The following will be verified:  
+3. The following will be verified:  
    - Application accessibility through the reverse proxy.  
    - Monitoring dashboards in Grafana (including cAdvisor and Loki).  
 
 ---
-
-### **Deadline**
-All submissions are due by **Sunday, 11:59 PM**.  
-
-Good luck, and happy automating!
