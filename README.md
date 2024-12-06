@@ -212,6 +212,45 @@ Move into the application folder where the main docker-compose.yml file is locat
 ```
 cd cv-challenge-02/terraform
 ```
+
+### Step 5: Create an AWS Profile
+
+Set up an AWS CLI profile to manage credentials and region configurations:
+```
+aws configure --profile=<profile-name>
+
+# Replace <profile-name> with a unique name for your profile (e.g., terraform-profile).
+
+```
+Update the provider block in terraform/main.tf to use the newly created AWS profile:
+
+```
+provider "aws" {
+    profile = "<profile-name>"   # Replace with the profile name you configured
+}
+
+```
+### Step 6: Set Up the Remote Backend
+
+Navigate to the terraform/backend directory.
+Run the following commands to create an S3 bucket for storing the Terraform state file remotely and a DynamoDB table for state locking:
+```
+cd terraform/backend
+terraform init      # Initialize the backend configuration
+terraform plan      # Preview the changes to be applied
+terraform apply     # Apply the changes to create S3 bucket and DynamoDB table
+```
+
+
+
+
+
+
+
+
+
+
+
 ### Step 5: Create a Docker Network
 
 Create a Docker network named app_network. This network ensures seamless communication between the containers.
