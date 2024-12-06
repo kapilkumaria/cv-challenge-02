@@ -207,6 +207,40 @@ terraform
 ├── outputs.tf
 └── variables.tf
 ```
+# How to Use This Repository
+
+Follow the steps below to set up and deploy the services defined in this repository:
+
+### Step 1: AWS - EC2 Instance Ubuntu, t2.medium with 50GiB Storage Volume
+
+### Step 2: Install Docker and Docker Compose
+Ensure Docker and Docker Compose are installed on server
+
+### Step 3: Clone the Repository
+
+Clone this repository to your server to access the application and configuration files.
+```
+git clone https://github.com/kapilkumaria/cv-challenge02.git
+```
+### Step 4: Navigate to the Application Directory
+
+Move into the application folder where the main docker-compose.yml file is located.
+```
+cd cv-challenge01/application
+```
+### Step 5: Create a Docker Network
+
+Create a Docker network named app_network. This network ensures seamless communication between the containers.
+```
+docker network create app_network
+```
+## Step 6: Secure the ACME Configuration
+
+Ensure that the acme.json file (used by Traefik for Let's Encrypt certificates) has the correct permissions for security.
+```
+chmod 600 cv-challenge01/traefik/letsencrypt/acme.json
+```
+    Note: Incorrect permissions may prevent Traefik from functioning properly and could expose sensitive certificate data.
 
 
 
