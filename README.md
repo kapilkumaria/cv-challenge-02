@@ -184,6 +184,13 @@ terraform/
 ├── outputs.tf                # Outputs for the main Terraform configuration (e.g., public IP, DNS name).
 └── variables.tf              # Input variables for the main Terraform configuration.
 ```
+![docs](images/docs.png)
+![redoc](images/redoc.png)
+![prometheus](images/prometheus.png)
+![grafana1](images/grafana1.png)
+![grafana2](images/grafana2.png)
+![grafana3](images/grafana3.png)
+
 # How to Use This Repository
 
 Follow the steps below to set up and deploy the services defined in this repository:
