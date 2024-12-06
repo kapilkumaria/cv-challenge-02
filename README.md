@@ -72,6 +72,8 @@ The project is organized into the following structure:
 
 - terraform/: Contains the configuration files for provisioning cloud infrastructure. It automates the creation of compute instances, networking resources, and DNS configurations.
 
+---
+
 ```
 ~/cv-challenge-02 main !1 ❯ tree -L 3                                                                         
 .
@@ -113,6 +115,8 @@ The project is organized into the following structure:
     ├── outputs.tf
     └── variables.tf
 ```
+---
+
 ```
 ~/cv-challenge-02 main !1 ❯ tree ansible
 ansible
@@ -169,6 +173,8 @@ ansible
 ├── site.yml
 └── vault
 ```
+---
+
 ```
 ~/cv-challenge-02 main !1 ❯ tree terraform
 terraform
