@@ -17,7 +17,7 @@ terraform apply --auto-approve
 ```
 ### **Components** 
 --- 
-#### **Infrastructure Provisioning (Terraform)**
+#### **1. Infrastructure Provisioning (Terraform)**
 
 - **Compute Resources**: AWS EC2 instances for hosting the application and monitoring stacks.
 - **Networking Resources**: Configures VPC, subnets, security groups, and internet gateways.
@@ -32,7 +32,7 @@ terraform apply --auto-approve
 - **Database:** PostgreSQL for persistent data storage.
 - **Reverse Proxy:** Traefik for path-based routing between services and SSL management.
 
-You must prebuild the Docker images for the **Frontend** and **Backend** and push them to your public Docker Hub repositories:
+> You must prebuild the Docker images for the **Frontend** and **Backend** and push them to your public Docker Hub repositories:
 Reference: We built docker images and pushed that to DockerHub in https://github.com/kapilkumaria/cv-challenge01
 
 - Example frontend image: `docker.io/<your_username>/frontend:latest`  
@@ -50,7 +50,7 @@ The application stack Ansible role will pull these images from Docker Hub.
 - **Promtail** Collects logs from the application and system.
 ---
 
-#### **3. Deployment Workflow**
+#### **4. Deployment Workflow**
 - **Terraform:**  
   - Provisions the cloud infrastructure (e.g., server instance, networking).
   - Generates the Ansible inventory file (`inventory.ini`) dynamically.  
@@ -63,6 +63,17 @@ The application stack Ansible role will pull these images from Docker Hub.
   - Configures Traefik or Nginx for routing across all services.
 
 ---
+
+## Project Structure
+
+The project is organized into the following structure:
+
+- ansible/: Contains playbooks, inventory files, and modular roles for deploying the application and monitoring stacks. Each role is designed to handle specific components, ensuring reusability and clarity.
+
+- terraform/: Contains the configuration files for provisioning cloud infrastructure. It automates the creation of compute instances, networking resources, and DNS configurations.
+
+![ansible](images/ansible-folders.png)
+
 
 
 
