@@ -72,9 +72,135 @@ The project is organized into the following structure:
 
 - terraform/: Contains the configuration files for provisioning cloud infrastructure. It automates the creation of compute instances, networking resources, and DNS configurations.
 
-![ansible](images/ansible-folders.png)
-
-
+```
+~/cv-challenge-02 main !1 ❯ tree -L 3                                                                         
+.
+├── README.md
+├── README.md.bkp
+├── ansible
+│   ├── README.md
+│   ├── ansible.cfg
+│   ├── group_vars
+│   ├── inventory
+│   ├── roles
+│   │   ├── application
+│   │   ├── common
+│   │   ├── db
+│   │   ├── monitoring
+│   │   ├── nginx
+│   │   └── traefik
+│   ├── site.yml
+│   └── vault
+├── ansible.cfg -> /home/ubuntu/cv-challenge-o2/ansible/ansible.cfg
+├── images
+│   └── ansible-folders.png
+└── terraform
+    ├── backend
+    │   ├── main.tf
+    │   ├── outputs.tf
+    │   ├── terraform.tfstate
+    │   ├── terraform.tfstate.backup
+    │   └── variables.tf
+    ├── backend.tf
+    ├── environments
+    │   ├── dev.tfvars
+    │   ├── prod.tfvars
+    │   └── staging.tfvars
+    ├── main.tf
+    ├── modules
+    │   ├── compute
+    │   └── network
+    ├── outputs.tf
+    └── variables.tf
+```
+```
+~/cv-challenge-02 main !1 ❯ tree ansible
+ansible
+├── README.md
+├── ansible.cfg
+├── group_vars
+├── inventory
+├── roles
+│   ├── application
+│   │   ├── defaults
+│   │   ├── files
+│   │   │   ├── backend.env
+│   │   │   ├── frontend.env
+│   │   │   └── nginx.conf
+│   │   ├── handlers
+│   │   ├── meta
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   ├── templates
+│   │   │   └── docker_container.j2
+│   │   └── vars
+│   ├── common
+│   │   └── tasks
+│   │       └── main.yml
+│   ├── db
+│   │   ├── files
+│   │   │   └── db.env
+│   │   └── tasks
+│   │       └── main.yml
+│   ├── monitoring
+│   │   ├── files
+│   │   │   ├── grafana.yml
+│   │   │   ├── loki-config.yml
+│   │   │   ├── prometheus.yml
+│   │   │   └── promtail-config.yml
+│   │   ├── handlers
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   └── templates
+│   ├── nginx
+│   │   ├── files
+│   │   │   └── nginx.conf
+│   │   └── tasks
+│   │       └── main.yml
+│   └── traefik
+│       ├── defaults
+│       ├── files
+│       │   └── acme.json
+│       ├── handlers
+│       ├── tasks
+│       │   └── main.yml
+│       ├── templates
+│       └── vars
+├── site.yml
+└── vault
+```
+```
+~/cv-challenge-02 main !1 ❯ tree terraform
+terraform
+├── backend
+│   ├── main.tf
+│   ├── outputs.tf
+│   ├── terraform.tfstate
+│   ├── terraform.tfstate.backup
+│   └── variables.tf
+├── backend.tf
+├── environments
+│   ├── dev.tfvars
+│   ├── prod.tfvars
+│   └── staging.tfvars
+├── main.tf
+├── modules
+│   ├── compute
+│   │   ├── main.tf
+│   │   ├── main.tf.bkp
+│   │   ├── outputs.tf
+│   │   ├── provider.tf
+│   │   ├── variables.tf
+│   │   └── variables.tf.bkp
+│   └── network
+│       ├── main.tf
+│       ├── outputs.tf
+│       ├── terraform.tfstate
+│       ├── terraform.tfstate.backup
+│       └── variables.tf
+├── outputs.tf
+└── variables.tf
+```
 
 
 
