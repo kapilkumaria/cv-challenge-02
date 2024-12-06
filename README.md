@@ -213,8 +213,15 @@ Follow the steps below to set up and deploy the services defined in this reposit
 
 ### Step 1: AWS - EC2 Instance Ubuntu, t2.medium with 50GiB Storage Volume
 
-### Step 2: Install Docker and Docker Compose
-Ensure Docker and Docker Compose are installed on server
+### Step 2: Install these Packages
+- Update System Packes
+- Git
+- Docker
+- Docker Compose
+- Terraform
+- Ansible
+- AWS CLI
+- Tree (Optional)
 
 ### Step 3: Clone the Repository
 
