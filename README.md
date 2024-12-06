@@ -15,6 +15,8 @@ Provide a single command deployment workflow:
 ```
 terraform apply --auto-approve
 ```
+![diagram](images/diagram.png)
+
 ### **Components** 
 --- 
 #### **1. Infrastructure Provisioning (Terraform)**
