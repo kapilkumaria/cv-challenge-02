@@ -242,88 +242,122 @@ terraform apply     # Apply the changes to create S3 bucket and DynamoDB table
 
 # Note: (Optional) Replace 'S3 bucket name', 'DynamoDB table name' and 'IAM policy for terraform backend access in terraform/backend/main.tf'
 ```
+### Step 7: Configure Terraform Backend to Use Remote S3 for State Management
 
+Navigate to the root terraform/ directory.
 
+Run the following commands to switch Terraform state management from local to remote using the S3 bucket and DynamoDB table created earlier:
 
-
-
-
-
-
-### Step 5: Create a Docker Network
-
-Create a Docker network named app_network. This network ensures seamless communication between the containers.
 ```
-docker network create app_network
+cd terraform
+terraform init      # Reinitialize with the remote backend
 ```
-## Step 6: Secure the ACME Configuration
 
-Ensure that the acme.json file (used by Traefik for Let's Encrypt certificates) has the correct permissions for security.
+### Step 8: Copy <aws.pem> File to Your Home Directory
+
+Use the scp command to securely copy your .pem file (AWS key pair) to the home directory of the server where Terraform will be executed:
 ```
-chmod 600 cv-challenge01/traefik/letsencrypt/acme.json
+scp -i <aws.pem> <aws.pem> ubuntu@<server_ip>:/home/ubuntu
+
+# Replace <aws.pem> with the name of your key pair file.
+# Replace <server_ip> with the public IP address of your server.
 ```
-    Note: Incorrect permissions may prevent Traefik from functioning properly and could expose sensitive certificate data.
+```
+# Ensure that Git does not track this .pem file to avoid security risks:
 
+git update-index --assume-unchanged <path-to-aws.pem>
+```
 
+### Step 9: Update Security Group Rules in variables.tf
 
+Open the file located at terraform/modules/compute/variables.tf.
 
+Update the security group rules as follows:
+    Port 22 (SSH): Set the CIDR block to your IP address for secure SSH access.
+    Port 22 (Server/Host): Set the CIDR block to the IP address of the server/host where Terraform is running.
 
+  Example configuration:
+```
+variable "security_group_rules" {
+    default = [
+        {
+            from_port   = 22
+            to_port     = 22
+            protocol    = "tcp"
+            cidr_blocks = ["<your-ip>/32"]   # Replace <your-ip> with your local IP address
+        },
+        {
+            from_port   = 22
+            to_port     = 22
+            protocol    = "tcp"
+            cidr_blocks = ["<server-ip>/32"]  # Replace <server-ip> with the server/host IP
+        }
+    ]
+}
 
+# Save the changes and proceed with your Terraform steps.
+```
+### Step 10: Deploy the Complete Infrastructure and Application for the Dev Environment
 
+Execute the following command to provision the infrastructure and deploy the application for the development environment:
+```
+terraform apply --var-file=environments/dev.tfvars --auto-approve
+```
+> This command automates the following:
 
+  1. Infrastructure Provisioning:
+        - Terraform will provision AWS network resources (e.g., VPC, subnets).
+        - Terraform will provision AWS compute resources (e.g., EC2 instances).
+  2. Application Deployment:
+        Terraform will trigger Ansible to:
+        - Deploy the full application stack (frontend, backend, database).
+        - Deploy the monitoring stack (Prometheus, Grafana, Loki, etc.).
+        - Configure Traefik for path-based routing and SSL management.
 
+Once completed, the infrastructure and application will be fully deployed and operational.
 
+### Step 11: Test Your Application and Verify the Deployment
 
+Verify the following components to ensure the deployment was successful:
+1. **Application Accessibility**: 
+  
+     1.1 Check if the application is accessible through the reverse proxy.
+     
+     1.2 Monitoring Dashboards: Confirm that the monitoring dashboards in Grafana are displaying metrics, including: 
+     
+      1.2.1 cAdvisor: Container-level metrics.
+     
+      1.2.2 Loki: Logs from the application and infrastructure.
 
+## Access the application and services using the following URLs:
+   
+   **Application Root**: `https://<your-domain>/`
+   
+   **API Documentation (Swagger)**: `https://<your-domain>/docs`
+   
+   **API Documentation (ReDoc)**: `https://<your-domain>/redocs`
 
+   **Database Admin Interface (Adminer)**: `https://<your-domain>/adminer`
 
+   **Prometheus Metrics**: `https://<your-domain>/prometheus`
 
+   **Grafana Dashboards**: `https://<your-domain>/grafana`
 
+   Examples:
 
+   https://boss.kapilkumaria.com
 
+   https://boss.kapilkumaria.com/docs
 
+   https://boss.kapilkumaria.com/prometheus
 
+## Additional Features:
+  1. **Automatic Redirect to HTTPS**:
 
+        This setup ensures that all traffic to `http://www.<your-domain>` is redirected to `https://<your-domain>.com`
+        
+  2. **SSL Certificate Issuance**:
 
+        Traefik will automatically issue and manage SSL certificates for your domain, ensuring secure communication.
 
-
-
-
-
-
-<!-- 2. Ensure your design accounts for:  
-   - Shared Docker networks.  
-   - Routing between services.  
-
-#### **Step 3: Write Terraform and Ansible Configurations**
-1. **Terraform:**  
-   - Provision cloud infrastructure (e.g., a VM instance).  
-   - Automatically generate the Ansible inventory file (`inventory.ini`).  
-   - Trigger Ansible playbooks.  
-
-2. **Ansible:**  
-   - Use roles to:
-     - Configure the server environment.
-     - Set up and run the **Application Stack** (using Docker Compose).
-     - Set up and run the **Monitoring Stack** (using Docker Compose).
-     - Configure routing with Traefik.
-
---- -->
-
-
-
-### **Test Your Application By**
-1. Run:
-   ```bash
-   terraform apply -auto-approve
-   ```
-2. This command should:
-   - Provision the infrastructure.
-   - Automatically deploy both the application and monitoring stacks.
-   - Configure routing for all services.  
-
-3. The following will be verified:  
-   - Application accessibility through the reverse proxy.  
-   - Monitoring dashboards in Grafana (including cAdvisor and Loki).  
-
----
+  3. Replace `<your-domain>` with the actual domain name configured in your deployment.
