@@ -239,10 +239,9 @@ cd terraform/backend
 terraform init      # Initialize the backend configuration
 terraform plan      # Preview the changes to be applied
 terraform apply     # Apply the changes to create S3 bucket and DynamoDB table
+
+# Note: (Optional) Replace 'S3 bucket name', 'DynamoDB table name' and 'IAM policy for terraform backend access in terraform/backend/main.tf'
 ```
-
-
-
 
 
 
