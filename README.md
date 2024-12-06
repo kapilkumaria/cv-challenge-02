@@ -75,137 +75,114 @@ The project is organized into the following structure:
 ---
 
 ```
-~/cv-challenge-02 main !1 ❯ tree -L 3                                                                         
+~/cv-challenge-02 main !2 ❯ tree -L 2                                                                
 .
-├── README.md
-├── README.md.bkp
-├── ansible
-│   ├── README.md
-│   ├── ansible.cfg
-│   ├── group_vars
-│   ├── inventory
-│   ├── roles
-│   │   ├── application
-│   │   ├── common
-│   │   ├── db
-│   │   ├── monitoring
-│   │   ├── nginx
-│   │   └── traefik
-│   ├── site.yml
-│   └── vault
+├── README.md                       # Main documentation file for the repository.
+├── ansible                         # Contains Ansible configurations and playbooks for deploying the application stack.
+│   ├── README.md            
+│   ├── ansible.cfg          
+│   ├── group_vars           
+│   ├── inventory            
+│   ├── roles                
+│   ├── site.yml             
+│   └── vault                
 ├── ansible.cfg -> /home/ubuntu/cv-challenge-o2/ansible/ansible.cfg
-├── images
-│   └── ansible-folders.png
-└── terraform
-    ├── backend
-    │   ├── main.tf
-    │   ├── outputs.tf
-    │   ├── terraform.tfstate
-    │   ├── terraform.tfstate.backup
-    │   └── variables.tf
-    ├── backend.tf
-    ├── environments
-    │   ├── dev.tfvars
-    │   ├── prod.tfvars
-    │   └── staging.tfvars
-    ├── main.tf
-    ├── modules
-    │   ├── compute
-    │   └── network
-    ├── outputs.tf
-    └── variables.tf
+├── images                   
+│   └── ansible-folders.png  
+└── terraform                       # Contains Terraform configurations for infrastructure provisioning.
+    ├── backend              
+    ├── backend.tf           
+    ├── environments         
+    ├── main.tf              
+    ├── modules              
+    ├── outputs.tf           
+    └── variables.tf         
 ```
 ---
 
 ```
-~/cv-challenge-02 main !1 ❯ tree ansible
-ansible
-├── README.md
-├── ansible.cfg
-├── group_vars
-├── inventory
-├── roles
-│   ├── application
-│   │   ├── defaults
+ansible/
+├── README.md                       # Documentation for the Ansible setup, including instructions on usage and configuration.
+├── ansible.cfg                     # Ansible configuration file to define defaults (e.g., inventory file, SSH user).
+├── group_vars                      # Directory for group-specific variables (e.g., variables for all application servers).
+├── inventory                       # Inventory file defining groups of servers (e.g., dev, prod) and their IPs/hostnames.
+├── roles                           # Directory containing modular roles for specific components.
+│   ├── application                 # Role to deploy and configure the application stack (frontend, backend).
+│   │   ├── defaults                # Default variables for the role (can be overridden by other variable files).
+│   │   ├── files                   # Static files used in the application setup.
+│   │   │   ├── backend.env         # Environment file for backend configuration (e.g., DB connection, API keys).
+│   │   │   ├── frontend.env        # Environment file for frontend configuration (e.g., API URLs, environment).
+│   │   │   └── nginx.conf          # Nginx configuration file for routing and load balancing.
+│   │   ├── handlers                # Handlers triggered by tasks (e.g., restart services after configuration changes).
+│   │   ├── meta                    # Metadata about the role (e.g., dependencies, author, etc.).
+│   │   ├── tasks                   # Directory containing task files that define actions to configure the application.
+│   │   │   └── main.yml            # Main task file to deploy and configure the application stack.
+│   │   ├── templates               # Jinja2 templates to dynamically generate configuration files.
+│   │   │   └── docker_container.j2 # Template for Docker Compose or container definitions.
+│   │   └── vars                    # Variables specific to the application role.
+│   ├── common                      # Role for common configurations and dependencies shared across all roles.
+│   │   └── tasks
+│   │       └── main.yml            # Main task file for common setup actions (e.g., installing packages, creating users).
+│   ├── db                          # Role for setting up the database.
 │   │   ├── files
-│   │   │   ├── backend.env
-│   │   │   ├── frontend.env
-│   │   │   └── nginx.conf
-│   │   ├── handlers
-│   │   ├── meta
+│   │   │   └── db.env              # Environment file for database configuration (e.g., credentials, connection settings).
+│   │   └── tasks
+│   │       └── main.yml            # Main task file for database setup and configuration.
+│   ├── monitoring                  # Role for setting up the monitoring stack (Prometheus, Grafana, Loki, etc.).
+│   │   ├── files                   # Static configuration files for monitoring services.
+│   │   │   ├── grafana.yml         # Configuration file for Grafana.
+│   │   │   ├── loki-config.yml     # Configuration file for Loki (log aggregation).
+│   │   │   ├── prometheus.yml      # Configuration file for Prometheus (metrics collection).
+│   │   │   └── promtail-config.yml # Configuration file for Promtail (log forwarding).
+│   │   ├── handlers                # Handlers for monitoring services (e.g., restart Prometheus, reload Grafana).
 │   │   ├── tasks
-│   │   │   └── main.yml
-│   │   ├── templates
-│   │   │   └── docker_container.j2
-│   │   └── vars
-│   ├── common
-│   │   └── tasks
-│   │       └── main.yml
-│   ├── db
+│   │   │   └── main.yml            # Main task file for setting up and configuring monitoring tools.
+│   │   └── templates               # Templates for monitoring service configurations (optional).
+│   ├── nginx                       # Role for configuring and deploying Nginx as a reverse proxy or load balancer.
 │   │   ├── files
-│   │   │   └── db.env
+│   │   │   └── nginx.conf          # Static Nginx configuration file.
 │   │   └── tasks
-│   │       └── main.yml
-│   ├── monitoring
-│   │   ├── files
-│   │   │   ├── grafana.yml
-│   │   │   ├── loki-config.yml
-│   │   │   ├── prometheus.yml
-│   │   │   └── promtail-config.yml
-│   │   ├── handlers
-│   │   ├── tasks
-│   │   │   └── main.yml
-│   │   └── templates
-│   ├── nginx
-│   │   ├── files
-│   │   │   └── nginx.conf
-│   │   └── tasks
-│   │       └── main.yml
-│   └── traefik
-│       ├── defaults
+│   │       └── main.yml            # Main task file for Nginx setup.
+│   └── traefik                     # Role for setting up Traefik as a reverse proxy and SSL manager.
+│       ├── defaults                # Default variables for Traefik configuration.
 │       ├── files
-│       │   └── acme.json
-│       ├── handlers
+│       │   └── acme.json           # File to store SSL certificates managed by Traefik.
+│       ├── handlers                # Handlers for Traefik (e.g., restart after config changes).
 │       ├── tasks
-│       │   └── main.yml
-│       ├── templates
-│       └── vars
-├── site.yml
-└── vault
+│       │   └── main.yml            # Main task file for Traefik setup and configuration.
+│       ├── templates               # Templates for Traefik configurations (optional).
+│       └── vars                    # Variables specific to the Traefik role.
+├── site.yml                        # Master playbook to orchestrate all roles and tasks.
+└── vault                           # Directory for encrypted secrets using Ansible Vault.
 ```
 ---
 
 ```
-~/cv-challenge-02 main !1 ❯ tree terraform
-terraform
-├── backend
-│   ├── main.tf
-│   ├── outputs.tf
-│   ├── terraform.tfstate
-│   ├── terraform.tfstate.backup
-│   └── variables.tf
-├── backend.tf
-├── environments
-│   ├── dev.tfvars
-│   ├── prod.tfvars
-│   └── staging.tfvars
-├── main.tf
-├── modules
-│   ├── compute
-│   │   ├── main.tf
-│   │   ├── main.tf.bkp
-│   │   ├── outputs.tf
-│   │   ├── provider.tf
-│   │   ├── variables.tf
-│   │   └── variables.tf.bkp
-│   └── network
-│       ├── main.tf
-│       ├── outputs.tf
-│       ├── terraform.tfstate
-│       ├── terraform.tfstate.backup
-│       └── variables.tf
-├── outputs.tf
-└── variables.tf
+terraform/
+├── backend                   # Directory for backend-specific Terraform configuration (remote state storage)
+│   ├── main.tf               # Defines S3 bucket and DynamoDB table for Terraform remote backend state.
+│   ├── outputs.tf            # Outputs for backend resources (e.g., S3 bucket name and DynamoDB table name).
+│   └── variables.tf          # Input variables for backend configuration (e.g., bucket name, region).
+├── backend.tf                # Configures Terraform to use the remote backend created in `backend/main.tf`.
+├── environments              # Directory for environment-specific variable files (e.g., dev, prod).
+│   ├── dev.tfvars            # Variable definitions specific to the development environment.
+│   ├── prod.tfvars           # Variable definitions specific to the production environment.
+│   └── staging.tfvars        # Variable definitions specific to the staging environment.
+├── main.tf                   # Main Terraform configuration file to orchestrate infrastructure provisioning.
+├── modules                   # Directory containing reusable Terraform modules.
+│   ├── compute               # Module to manage compute resources (e.g., EC2 instances).
+│   │   ├── main.tf           # Defines compute resources (e.g., EC2 instances, ASGs).
+│   │   ├── main.tf.bkp       # Backup of an earlier version of `main.tf` (optional; consider removing).
+│   │   ├── outputs.tf        # Outputs specific to compute resources (e.g., public IP, instance ID).
+│   │   ├── provider.tf       # Specifies provider configuration (e.g., AWS region, credentials).
+│   │   ├── variables.tf      # Input variables for compute module.
+│   │   └── variables.tf.bkp  # Backup of an earlier version of `variables.tf` (optional; consider removing).
+│   └── network               # Module to manage networking resources (e.g., VPC, subnets).
+│       ├── main.tf           # Defines networking resources (e.g., VPC, subnets, gateways).
+│       ├── outputs.tf        # Outputs specific to networking resources (e.g., VPC ID, subnet IDs).
+│       └── variables.tf      # Input variables for networking module.
+├── outputs.tf                # Outputs for the main Terraform configuration (e.g., public IP, DNS name).
+└── variables.tf              # Input variables for the main Terraform configuration.
 ```
 # How to Use This Repository
 
@@ -227,13 +204,13 @@ Follow the steps below to set up and deploy the services defined in this reposit
 
 Clone this repository to your server to access the application and configuration files.
 ```
-git clone https://github.com/kapilkumaria/cv-challenge02.git
+git clone https://github.com/kapilkumaria/cv-challenge-02.git
 ```
-### Step 4: Navigate to the Application Directory
+### Step 4: Navigate to the Terraform Directory
 
 Move into the application folder where the main docker-compose.yml file is located.
 ```
-cd cv-challenge01/application
+cd cv-challenge-02/terraform
 ```
 ### Step 5: Create a Docker Network
 
