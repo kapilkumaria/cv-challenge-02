@@ -1,4 +1,4 @@
-## Automate Deployment with Terraform and Ansible - Full Stack Application with Monitoring and Logging
+# 💡 Week 2: Automate Deployment with Terraform and Ansible - Full Stack Application with Monitoring and Logging
 
 This project focuses on automating the deployment of a full-stack application and its associated monitoring and logging infrastructure using Terraform and Ansible. The workflow ensures seamless provisioning, configuration, and deployment of application and monitoring stacks with path-based routing, SSL certificate management, and DNS updates.
 
